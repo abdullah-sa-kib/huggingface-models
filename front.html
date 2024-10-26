@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDXL Image Generator</title>
+</head>
+<body>
+    <h1>Generate Image from Text</h1>
+    <input type="text" id="prompt" placeholder="Enter your prompt">
+    <button onclick="generateImage()">Generate Image</button>
+    <br>
+    <img id="result" style="margin-top: 20px; max-width: 500px;">
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const response = await fetch('http://localhost:8000/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ inputs: prompt }),
+            });
+            const data = await response.json();
+            const imageBlob = new Blob([new Uint8Array(data.image_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)))], { type: 'image/jpeg' });
+            document.getElementById('result').src = URL.createObjectURL(imageBlob);
+        }
+    </script>
+</body>
+</html>
